@@ -216,6 +216,82 @@ Char are not actually defined this way).
 
 Case Expressions
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+The fundamental construct for doing pattern-matching  in Haskell is the case ex-
+pression. In general, a case expression looks like:
+
+case <expression> of
+  pattern1 → expression1
+  pattern2 → expression2
+          ...
+  patternN → expressionN
+
+When evaluated, the expression <expression>  is matched against each of the pat-
+terns: pattern1, pattern2, ..., patternN in turn.  The first matching pattern is
+chosen, and the entire case expression evaluates to the expression corresponding
+to the matching pattern. For example: 
+
+> n :: Int
+> n = case "Hello" of
+>  []         -> 3
+>  ('H':rest) -> length rest
+>  _          -> 7
+
+When this expression is evaluated, the second pattern is chosen;  the third pat-
+tern matches too, of course, but it is never reached.
+
+Prelude> n
+4
+Prelude> :t n
+n :: Int
+
+In fact,  the syntax for defining functions we  have seen is really just  conve-
+nient syntactic sugar for defining a case expression.   For example, the defini-
+tion of failureToZero given previously can equivalently be written as:
+
+> failureToZero' :: FailableDouble -> Double
+> failureToZero' x = case x of
+>                      Failure -> 0
+>                      OK db   -> db
+
+If we test this in GHCi:
+
+Prelude> print $ failureToZero' (OK 4.13)
+4.13
+
+Recursive Data Types
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Data types can be recursive, that is, defined in terms of themselves. In fact,we
+have already seen a recursive type -the type of lists. A list is either empty,or
+a single element followed by a remaining list. We could define our own list type
+like so:
+
+> data IntList = Empty | Cons Int IntList
+
+Haskell's own  built-in lists are  quite similar;  they just get  to use special
+built-in syntax ( [] and : ). Of course, they also work for any type of elements
+instead of just Ints; more on this in  the next lesson.  We often use  recursive
+functions to process recurisve data types:
+
+> intListProd :: IntList -> Int
+> intListProd Empty        = 1
+> intListProd (Cons x xs)  = x * intListProd xs
+
+That, when evaluated gives:
+Prelude> print $ intListProd (Cons 3 (Cons 2 (Cons 4 Empty)))
+24
+As another simple example, we can define a type of binary trees  with an Int va-
+lue stored at each internal node, and a Char stored at each leaf.
+
+> data Tree = Leaf Char
+>           | Node Tree Int Tree
+>  deriving Show
+>
+> tree :: Tree
+> tree = Node (Leaf 'x') 1 (Node (Leaf 'y') 2 (Leaf 'z'))
+
+Prelude> print tree
+Node (Leaf 'x') 1 (Node (Leaf 'y') 2 (Leaf 'z'))
+
 
 
 
