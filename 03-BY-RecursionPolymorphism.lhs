@@ -47,4 +47,22 @@ solute value:
 > absAll (Cons x xs)  = Cons (abs x) (absAll xs)
 
 Prelude> print $ absAll myIntList
+Cons 2 (Cons 3 (Cons 5 Empty))
+
+Or we could square every element:
+
+> squareAll :: IntList -> IntList
+> squareAll Empty       = Empty
+> squareAll (Cons x xs) = Cons (x * x) (squareAll xs)
+
+Prelude> print $ squareAll myIntList
+Cons 4 (Cons 9 (Cons 25 Empty))
+
+At this point, big flashing red lights  and warning bells whould be going off in
+your head. These three functions look way too similar.There ought to be some way
+to abstract out the commonality so we don't have to repeat ourselves!.  There is
+indeed a way -can you figure it out? Which parts are the same in all three exam-
+ples and which parts change?
+[All functions have the same base condition. All functions take one argument and
+return one result of the same type. All functions are recursive.]
 
