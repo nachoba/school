@@ -233,9 +233,51 @@ to directly make decision based on what type something is-  has some interesting
 implications which we will explore later.
 
 The Prelude
-‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+The Prelude is a module with a bunch of standard definitions that  gets implici-
+tly imported into every Haskell program. It's worth spending some time  skimming
+through its documentation to familiarize oneself with the tools that are availa-
+ble. Of course, polymorphic  lists are defined  in the Prelude,  along with many
+useful polymorphic functions for working with them.  For example, filter and map
+are the counterparts to our filterList and mapList. In fact, the Data.List modu-
+le contains many more list functions still.
 
+Another useful polymorphic type to know is Maybe, defines as:
 
+data Maybe a = Nothing | Just a
+
+A value of type "Maybe a" either contains a value of type a (wrapped in the Just
+constructor), or it is Nothing (representing some sort of failure or error). The
+Data.Maybe module has functions for working with Maybe values.
+
+Total and Partial Functions
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Consider the polymorphic type "[a] → a", what  functions could have such a type?
+The type says that given a list of things of type "a", the function must produce
+some value of type a. For example, the Prelude function head has this type.  But
+what happens if head is  given an empty list as input?  The source code for head 
+looks something like this:
+
+head :: [a] → a
+head (x:_) = x
+head []    = error "head"
+
+It crashes! There's nothing else it possibly could do,since it must work for all
+types.There's no way to make up an element of an arbitrary type out of thin air.
+"head" is what is known as a partial function:there are certain inputs for which
+head will crash. Functions which have certain inputs that will make them recurse
+infinitely are also called partial. Functions which are well-defined on all pos-
+sible inputs are know as total functions.   It is good Haskell practice to avoid
+partial functions as much as possible.   Actually, avoiding partial functions is
+good practice in any programming language  -but in most of them it's ridiculous-
+ly annoying. Haskell tends to make it quite easy and sensible.
+
+head is a mistake! It should not be in the Prelude. Other partial  Prelude func-
+tions you should almost never use include: tail, init, last and (!!). What to do
+instead?
+
+Replacing partial functions
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 
 
