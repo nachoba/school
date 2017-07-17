@@ -278,6 +278,89 @@ instead?
 
 Replacing partial functions
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Often partial functions like head,tail,init,and so on can be replaced by pattern
+matching. Consider the following two definitions:
+
+> doStuff1 :: [Int] -> Int
+> doStuff1 []  = 0
+> doStuff1 [_] = 0
+> doStuff1 xs  = head xs + head (tail xs)
+
+> doStuff2 :: [Int] -> Int
+> doStuff2 []        = 0
+> doStuff2 [_]       = 0
+> doStuff2 (x1:x2:_) = x1 + x2
+
+These functions compute exactly the same result,   and they are both total.   But
+only the second one is obviously total, and it is much easier to read anyway.
+
+> myStuff :: [Int]
+> myStuff = [1, 2, 3, 4, 5, 6]
+
+Prelude> doStuff1 myStuff
+3
+
+Prelude> duStuff2 myStuff
+3
+
+Writing partial functions
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+What if you find yourself writing a partial function?   There are two approaches 
+to take.  The first is to change the output type of the function to indicate the
+possible failure. Recall the definition of Maybe:
+
+data Maybe a = Nothing | Just a
+
+Now, suppose we were writing head. We could rewrite it safely like this:
+
+> safeHead :: [a] -> Maybe a
+> safeHead []    = Nothing
+> safeHead (x:_) = Just x
+
+Prelude> safeHead []
+Nothing
+
+Prelude> safeHead myStuff
+Just 1
+
+Indeed, there is exactly such a function defined in the safe package.Why is this
+a good idea?
+                 1. safeHead will never crash.
+                 2. The type of safeHead makes it obvious  that it may fail  for
+                    some inputs.
+                 3. The type system ensures  that users of safeHead  must appro-
+                    priately check the  return value of safeHead to see  whether
+                    they got a value of Nothing.
+
+In some cases, safeHead is still "partial" but we  have reflected the partiality
+in the type system, so it is now safe.  The goal is to have the types tell us as
+much as possible about the behaviour of functions. Ok, but what if  we know that
+we will only use head in situations where we are guaranteed to have a  non-empty
+list? In such situation, it is really annoying to get back a "Maybe a", since we
+have to expend  effort dealing with a case which we know cannot actually happen.
+The answer  is that if some condition is really guarantedd, then the types ought
+to reflect the guarantee! Then the compiler can enforce your guarantess for you.
+For example:
+
+> data NonEmptyList a = NEL a [a]
+
+> nelToList :: NonEmptyList a -> [a]
+> nelToList (NEL x xs) = x:xs
+
+> listToNEL :: [a] -> Maybe (NonEmptyList a)
+> listToNEL []     = Nothing
+> listToNEL (x:xs) = Just (NEL x xs)
+
+> headNEL :: NonEmptyList a -> a
+> headNEL (NEL x _) = x
+
+> tailNEL :: NonEmptyList a -> [a]
+> tailNEL (NEL _ xs) = xs
+
+You  might think doing such things is only for chumps who are not coding  super-
+geniuses like you.  Of course,  you would never make a  mistake like passing  an 
+empty list to a function which expects only non-empty ones, right? Well, there's
+definitely a chump involved, but it's not who you think.
 
 
 
